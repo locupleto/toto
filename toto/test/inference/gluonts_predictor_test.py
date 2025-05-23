@@ -130,7 +130,7 @@ def mock_inference_loader(mock_dataset):
 @pytest.fixture
 def toto_forecaster(real_model):
     """Fixture to create a TotoForecaster instance."""
-    from inference.forecaster import TotoForecaster
+    from toto.inference.forecaster import TotoForecaster
 
     return TotoForecaster(model=real_model.model)
 
