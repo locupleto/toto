@@ -58,7 +58,7 @@ cd toto
 python -m venv .venv
 source .venv/bin/activate
 
-# Install dependencies
+# Install package
 pip install --editable .
 ```
 For optimal inference speed, it's recommended to install [xformers](https://github.com/facebookresearch/xformers?tab=readme-ov-file#installing-xformers) and [flash-attention](https://github.com/Dao-AILab/flash-attention?tab=readme-ov-file#installation-and-features) as well.
