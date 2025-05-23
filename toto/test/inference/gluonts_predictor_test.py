@@ -19,21 +19,18 @@ from gluonts.dataset.loader import InferenceDataLoader
 from gluonts.torch.batchify import batchify
 from gluonts.transform import InstanceSplitter, TestSplitSampler
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-
-from helper_functions import set_default_dtype, skip_if_no_xformers
+from ..helper_functions import set_default_dtype, skip_if_no_xformers
 
 skip_if_no_xformers()
 set_default_dtype()
 
-from inference.forecaster import TotoForecaster
-from inference.gluonts_predictor import (
+from toto.inference.forecaster import TotoForecaster
+from toto.inference.gluonts_predictor import (
     Multivariate,
     TotoPredictor,
     TotoSampleForecast,
 )
-from model.toto import Toto
+from toto.model.toto import Toto
 
 DEVICE = torch.get_default_device()
 
