@@ -131,7 +131,7 @@ The largest portion of pretraining data comes from a dataset of approximately 1 
 
 #### Public Datasets
 
-To improve the performance of Toto on general-purpose time series forecasting across many domains, we include publcly availa
+To improve the performance of Toto on general-purpose time series forecasting across many domains, we include publicly available datasets:
 - [GiftEval Pretrain](https://huggingface.co/datasets/Salesforce/GiftEvalPretrain)
 - [Chronos pretraining data](https://huggingface.co/datasets/autogluon/chronos_datasets) (Note: only a subset of this dataset was used to avoid leakage with the GiftEval benchmark)
 
