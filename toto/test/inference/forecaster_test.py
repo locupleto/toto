@@ -113,6 +113,7 @@ def test_forecast_samples(mock_model, mock_inputs):
         mock_inputs.series.shape[1],
         prediction_length,
     ), "Mean forecast shape mismatch."
+    assert forecast.samples is not None, "Samples should not be None when num_samples is provided."
     assert forecast.samples.shape == (
         mock_inputs.series.shape[0],
         mock_inputs.series.shape[1],

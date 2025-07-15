@@ -5,6 +5,7 @@
 
 import os
 import sys
+from typing import Any, Dict, Optional, Union, cast
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -34,7 +35,7 @@ from toto.model.toto import Toto
 
 DEVICE = torch.get_default_device()
 
-BASE_MODEL_KWARGS = {
+BASE_MODEL_KWARGS: Dict[str, Any] = {
     "patch_size": 8,
     "stride": 8,
     "embed_dim": 64,
@@ -51,6 +52,12 @@ BASE_MODEL_KWARGS = {
         "k_components": 1,
     },
 }
+
+
+@pytest.fixture
+def mock_model():
+    """Mock the Toto model."""
+    return MagicMock(spec=Toto)
 
 
 @pytest.fixture

@@ -76,7 +76,7 @@ def mock_inputs(request):
         kv_cache = KVCache(
             batch_size=BATCH,
             num_variates=VARIATE,
-            transformer_layers=transformer.layers,
+            transformer_layers=list(transformer.layers),
             num_layers=6,
             embed_dim=EMBED_DIM,
             num_heads=NUM_HEADS,
