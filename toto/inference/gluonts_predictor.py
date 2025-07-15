@@ -27,9 +27,9 @@ from gluonts.transform import (
 )
 from tqdm import tqdm
 
-from data.util.dataset import MaskedTimeseries
-from inference.forecaster import TotoForecaster
-from model.toto import Toto
+from toto.data.util.dataset import MaskedTimeseries
+from toto.inference.forecaster import TotoForecaster
+from toto.model.toto import Toto
 
 
 @dataclass(frozen=True)
@@ -159,6 +159,7 @@ class TotoSampleForecastGenerator(SampleForecastGenerator):
             )
 
             if num_samples is not None:
+                assert outputs.samples is not None, "outputs.samples should not be None when num_samples is provided"
                 samples = rearrange(
                     outputs.samples,
                     "batch variate time_steps samples -> batch samples time_steps variate",
@@ -176,17 +177,19 @@ class TotoSampleForecastGenerator(SampleForecastGenerator):
             samples = samples.squeeze(-1) if samples.shape[-1] == 1 else samples
             avg = avg.squeeze(-1) if avg.shape[-1] == 1 else avg
 
-            avg = avg.to(batch["past_target"].dtype).cpu().numpy()
-            samples = samples.to(batch["past_target"].dtype).cpu().numpy()
+            avg_np = avg.to(batch["past_target"].dtype).cpu().numpy()
+            samples_np = samples.to(batch["past_target"].dtype).cpu().numpy()
 
             if output_transform is not None:
-                samples = output_transform(samples)
-                mean: np.ndarray = output_transform(mean)
+                samples_np = output_transform(samples_np)
+                mean_np: np.ndarray = output_transform(avg_np)
+            else:
+                mean_np = avg_np
 
-            for item_idx in range(samples.shape[0]):
+            for item_idx in range(samples_np.shape[0]):
                 yield TotoSampleForecast(
-                    samples=samples[item_idx],
-                    mean=avg[item_idx],
+                    samples=samples_np[item_idx],
+                    mean=mean_np[item_idx],
                     start_date=batch["forecast_start"][item_idx],
                     item_id=batch["item_id"][item_idx],
                     info=None,

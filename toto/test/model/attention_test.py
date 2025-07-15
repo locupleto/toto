@@ -10,13 +10,10 @@ import pytest
 import torch
 from beartype import beartype
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from ..helper_functions import set_default_dtype, skip_if_no_xformers
 
-from helper_functions import set_default_dtype, skip_if_no_xformers
-
-from model.transformer import Transformer
-from model.util import KVCache
+from toto.model.transformer import Transformer
+from toto.model.util import KVCache
 
 skip_if_no_xformers()
 set_default_dtype()
@@ -79,7 +76,7 @@ def mock_inputs(request):
         kv_cache = KVCache(
             batch_size=BATCH,
             num_variates=VARIATE,
-            transformer_layers=transformer.layers,
+            transformer_layers=list(transformer.layers),
             num_layers=6,
             embed_dim=EMBED_DIM,
             num_heads=NUM_HEADS,

@@ -4,17 +4,17 @@
 # Copyright 2025 Datadog, Inc.
 
 from math import ceil
-from typing import NamedTuple, Optional, Type
+from typing import NamedTuple, Optional, Type, cast
 
 import torch
 from einops import rearrange
 from jaxtyping import Bool, Float, Int
 
-from model.distribution import DISTRIBUTION_CLASSES_LOOKUP, DistributionOutput
-from model.embedding import PatchEmbedding
-from model.scaler import scaler_types
-from model.transformer import Transformer
-from model.util import KVCache
+from ..model.distribution import DISTRIBUTION_CLASSES_LOOKUP, DistributionOutput
+from ..model.embedding import PatchEmbedding
+from ..model.scaler import scaler_types
+from ..model.transformer import Transformer
+from ..model.util import KVCache
 
 
 class TotoOutput(NamedTuple):
@@ -138,10 +138,10 @@ class TotoBackbone(torch.nn.Module):
         return KVCache(
             batch_size=batch_size,
             num_variates=num_variates,
-            transformer_layers=self.transformer.layers,
+            transformer_layers=list(self.transformer.layers),
             num_layers=self.num_layers,
             embed_dim=self.embed_dim,
-            num_heads=self.transformer.layers[0].num_heads,
+            num_heads=cast(int, self.transformer.layers[0].num_heads),
             max_seq_len=ceil(max_time_steps / self.patch_embed.stride),
             device=device,
             dtype=dtype,

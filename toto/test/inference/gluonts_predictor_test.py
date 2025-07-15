@@ -5,6 +5,7 @@
 
 import os
 import sys
+from typing import Any, Dict, Optional, Union, cast
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -19,25 +20,22 @@ from gluonts.dataset.loader import InferenceDataLoader
 from gluonts.torch.batchify import batchify
 from gluonts.transform import InstanceSplitter, TestSplitSampler
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-
-from helper_functions import set_default_dtype, skip_if_no_xformers
+from ..helper_functions import set_default_dtype, skip_if_no_xformers
 
 skip_if_no_xformers()
 set_default_dtype()
 
-from inference.forecaster import TotoForecaster
-from inference.gluonts_predictor import (
+from toto.inference.forecaster import TotoForecaster
+from toto.inference.gluonts_predictor import (
     Multivariate,
     TotoPredictor,
     TotoSampleForecast,
 )
-from model.toto import Toto
+from toto.model.toto import Toto
 
 DEVICE = torch.get_default_device()
 
-BASE_MODEL_KWARGS = {
+BASE_MODEL_KWARGS: Dict[str, Any] = {
     "patch_size": 8,
     "stride": 8,
     "embed_dim": 64,
@@ -54,6 +52,12 @@ BASE_MODEL_KWARGS = {
         "k_components": 1,
     },
 }
+
+
+@pytest.fixture
+def mock_model():
+    """Mock the Toto model."""
+    return MagicMock(spec=Toto)
 
 
 @pytest.fixture
@@ -133,7 +137,7 @@ def mock_inference_loader(mock_dataset):
 @pytest.fixture
 def toto_forecaster(real_model):
     """Fixture to create a TotoForecaster instance."""
-    from inference.forecaster import TotoForecaster
+    from toto.inference.forecaster import TotoForecaster
 
     return TotoForecaster(model=real_model.model)
 

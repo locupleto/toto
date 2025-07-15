@@ -12,15 +12,15 @@ from einops import rearrange
 from jaxtyping import Bool, Float, Int
 from rotary_embedding_torch import RotaryEmbedding
 
-from model.attention import (
+from ..model.attention import (
     AttentionAxis,
     MultiHeadAttention,
     SpaceWiseMultiheadAttention,
     TimeWiseMultiheadAttention,
 )
-from model.feed_forward import SwiGLU
-from model.rope import TimeAwareRotaryEmbedding
-from model.util import KVCache, RMSNorm, make_batched_block_mask
+from ..model.feed_forward import SwiGLU
+from ..model.rope import TimeAwareRotaryEmbedding
+from ..model.util import KVCache, RMSNorm, make_batched_block_mask
 
 try:
     from xformers.ops.swiglu_op import SwiGLU as SwiGLU_fused
@@ -51,6 +51,12 @@ class TransformerLayer(torch.nn.Module):
     to improve performance.
     """
 
+    embed_dim: int
+    num_heads: int
+    mlp_hidden_dim: int
+    dropout: float
+    attention_axis: AttentionAxis
+
     def __init__(
         self,
         embed_dim: int,
@@ -70,8 +76,8 @@ class TransformerLayer(torch.nn.Module):
         self.attention_axis = attention_axis
 
         if RMS_norm:
-            self.norm1 = RMSNorm(embed_dim)
-            self.norm2 = RMSNorm(embed_dim)
+            self.norm1: Union[RMSNorm, torch.nn.LayerNorm] = RMSNorm(embed_dim)
+            self.norm2: Union[RMSNorm, torch.nn.LayerNorm] = RMSNorm(embed_dim)
 
         else:
             self.norm1 = torch.nn.LayerNorm(embed_dim)
@@ -121,7 +127,7 @@ class TransformerLayer(torch.nn.Module):
                 Bool[torch.Tensor, "batch #variate seq_len seq_len"],
             ]
         ] = None,
-        kv_cache: KVCache = None,
+        kv_cache: Optional[KVCache] = None,
     ) -> Float[torch.Tensor, "batch variate seq_len embed_dim"]:
         pre_norm_1 = self.norm1(inputs)
         hidden_state = inputs + self.attention(layer_idx, pre_norm_1, attention_mask, kv_cache).contiguous()
@@ -289,7 +295,7 @@ class Transformer(torch.nn.Module):
         self,
         inputs: Float[torch.Tensor, "batch variate seq_len embed_dim"],
         id_mask: Float[torch.Tensor, "batch #variate seq_len"],
-        kv_cache: KVCache = None,
+        kv_cache: Optional[KVCache] = None,
     ) -> Float[torch.Tensor, "batch variate seq_len embed_dim"]:
 
         batch, _, seq_len, _ = inputs.shape
