@@ -12,8 +12,8 @@ This repository contains Toto (Time Series Optimized Transformer for Observabili
 #### Apple Silicon Mac (Recommended)
 ```bash
 # Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate
+python -m venv venv
+source venv/bin/activate
 
 # Install package in editable mode - this is all you need!
 pip install --editable .
