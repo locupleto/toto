@@ -109,6 +109,14 @@ class MaskedTimeseries(NamedTuple):
     """
     The time frequency of each variate in seconds
     """
+    def to(self, device: torch.device) -> "MaskedTimeseries":
+        return MaskedTimeseries(
+            series=self.series.to(device),
+            padding_mask=self.padding_mask.to(device),
+            id_mask=self.id_mask.to(device),
+            timestamp_seconds=self.timestamp_seconds.to(device),
+            time_interval_seconds=self.time_interval_seconds.to(device),
+        )
 
 
 def is_extreme_value(t: torch.Tensor) -> torch.Tensor:
