@@ -109,6 +109,7 @@ class MaskedTimeseries(NamedTuple):
     """
     The time frequency of each variate in seconds
     """
+
     def to(self, device: torch.device) -> "MaskedTimeseries":
         return MaskedTimeseries(
             series=self.series.to(device),
