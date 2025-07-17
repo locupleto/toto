@@ -49,6 +49,7 @@ out/
 # Projects
 **/.venv
 env/
+venv
 
 
 # Packaging
