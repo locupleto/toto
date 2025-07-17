@@ -28,8 +28,8 @@ pytest -v  # Should show: 6 passed, 3 skipped
 #### Other Systems - Basic Installation
 ```bash
 # Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install package in editable mode (includes all required dependencies)
 pip install --editable .
