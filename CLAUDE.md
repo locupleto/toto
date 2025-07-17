@@ -9,7 +9,23 @@ This repository contains Toto (Time Series Optimized Transformer for Observabili
 
 ### Installation Commands
 
-#### Basic Installation (Required)
+#### Apple Silicon Mac (Recommended)
+```bash
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install package in editable mode - this is all you need!
+pip install --editable .
+
+# Verify installation works
+python -c "import toto; print('✅ Toto installed successfully')"
+pytest -v  # Should show: 6 passed, 3 skipped
+```
+
+**✅ This is the complete installation for Apple Silicon Macs.** No additional dependencies needed!
+
+#### Other Systems - Basic Installation
 ```bash
 # Create and activate virtual environment
 python -m venv .venv
@@ -19,15 +35,19 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install --editable .
 ```
 
-#### Optional Performance Optimizations
+#### Optional Performance Optimizations (Non-macOS Only)
 ```bash
-# For optimal performance, install additional dependencies (OPTIONAL)
-# Note: xformers may have installation issues on some systems (especially macOS)
-# The project works fully without these - they only provide performance improvements
+# ⚠️ WARNING: xformers does NOT work on Apple Silicon Macs
+# Only attempt this on Linux/Windows with compatible hardware
 pip install xformers flash-attention
 ```
 
-**Important:** xformers and flash-attention are **optional** dependencies. The project includes automatic fallbacks to native PyTorch implementations if these libraries are not available. All core functionality works without them, though performance may be slightly slower.
+**Important for Apple Silicon Users:** 
+- **xformers and flash-attention do NOT work on Apple Silicon Macs** 
+- **This is completely fine** - the project works perfectly without them
+- All functionality is available through automatic PyTorch fallbacks
+- Tests that require xformers are automatically skipped (3 tests)
+- Core functionality tests all pass (6 tests)
 
 ### Development Commands
 ```bash
@@ -132,6 +152,7 @@ pytest --tb=short                  # Shorter traceback format
 - **Environment variables**: `PYTORCH_ENABLE_MPS_FALLBACK=1` for macOS MPS
 - **Auto-skip logic**: `skip_if_no_xformers()` gracefully handles missing dependencies
 - **Device detection**: `set_default_dtype()` optimizes for available hardware
+- **Apple Silicon**: Tests automatically detect macOS and skip xformers-dependent tests
 
 ### Test Development Guidelines
 - All tests use `beartype` for runtime type checking
@@ -228,14 +249,26 @@ quantiles = samples.quantile(q=torch.tensor([0.05, 0.95]), dim=-1)  # 90% predic
 - **Context Length**: 4096 max (training length), but can extrapolate longer
 - **Prediction Length**: Any length (autoregressive generation)
 - **Samples**: 256 recommended for stable uncertainty estimates
-- **Device Support**: CUDA preferred, CPU and MPS supported
+- **Device Support**: 
+  - **Apple Silicon Mac**: Uses MPS (Metal Performance Shaders) automatically
+  - **CUDA**: Preferred for Linux/Windows with compatible GPUs
+  - **CPU**: Fallback for all systems
 - **Memory**: Use `samples_per_batch` to control memory usage
+- **Apple Silicon**: Full functionality available, no xformers needed
 
 ### Evaluation Workflows
-- **LSF evaluation**: Use `run_lsf_eval.py` with specific datasets
-- **GIFT-Eval**: Use provided notebook in `toto/evaluation/gift_eval/`
-- **BOOM evaluation**: Use notebook in `boom/notebooks/`
-- **Inference Tutorial**: `toto/notebooks/inference_tutorial.ipynb` - complete ETTm1 example
+
+#### ✅ Verified and Working
+- **✅ Inference Tutorial**: `toto/notebooks/inference_tutorial.ipynb` - complete ETTm1 forecasting example
+- **✅ Core functionality tests**: `pytest toto/test/model/` - 6 tests covering scaling algorithms
+- **✅ Data structure validation**: Working examples in troubleshooting section below
+
+#### 📋 Available but Not Tested on Apple Silicon
+- **📋 LSF evaluation**: `run_lsf_eval.py` - script exists and shows help, but requires model download and datasets
+- **📋 GIFT-Eval**: `toto/evaluation/gift_eval/toto.ipynb` - exists but not tested
+- **📋 BOOM evaluation**: Multiple notebooks in `boom/notebooks/` - exist but not tested
+
+**Note**: The untested workflows likely work but may require additional setup (datasets, model downloads, etc.) not verified in this Apple Silicon installation.
 
 ## Performance Considerations
 - Use model compilation: `toto.compile()` for faster inference
@@ -250,12 +283,19 @@ quantiles = samples.quantile(q=torch.tensor([0.05, 0.95]), dim=-1)  # 90% predic
 ## Troubleshooting and Common Issues
 
 ### Installation Issues
-**Problem**: xformers installation fails (especially on macOS)
+
+**Problem**: xformers installation fails on Apple Silicon Mac
 ```bash
-# Solution: Skip xformers - project works without it
-pip install --editable .  # Only install required dependencies
-# xformers tests will auto-skip, fallbacks are used
+# ✅ SOLUTION: Don't install xformers - it doesn't work on Apple Silicon!
+# This is the correct approach for macOS:
+pip install --editable .  # This is all you need
+
+# Verify it works:
+python -c "from toto.model.toto import Toto; print('✅ Toto works perfectly')"
+pytest toto/test/model/  # All 6 tests should pass
 ```
+
+**For Apple Silicon Mac users**: If you tried to install xformers and got errors, that's normal and expected. The project is designed to work without it.
 
 **Problem**: Module import errors after installation
 ```bash
@@ -321,7 +361,7 @@ inputs = MaskedTimeseries(
 )
 ```
 
-### Quick Validation
+### Quick Validation (✅ Tested on Apple Silicon)
 ```python
 # Test core functionality without model download
 from toto.data.util.dataset import MaskedTimeseries
@@ -338,7 +378,17 @@ inputs = MaskedTimeseries(
     time_interval_seconds=torch.full((2, 3), 60)
 )
 print("✓ Core data structures working")
+
+# Verify model classes can be imported
+from toto.model.toto import Toto
+from toto.inference.forecaster import TotoForecaster
+print("✓ Model classes imported successfully")
+
+# Run the working tests
+# pytest toto/test/model/scaler_test.py -v
 ```
+
+**This validation has been tested and works on Apple Silicon Mac.**
 
 ## Contributing
 Follow RFC process for new features (see CONTRIBUTING.md). Bug fixes can be submitted directly as PRs. All contributions require:
